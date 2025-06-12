@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 public class Condition
 {
+	@JsonProperty("code")
+	private Integer code;
 	@JsonProperty("text")
 	private String weatherCondition;
 	@JsonProperty("icon")
