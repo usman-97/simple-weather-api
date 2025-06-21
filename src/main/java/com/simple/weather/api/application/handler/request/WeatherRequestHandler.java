@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WeatherRequestHandler
 {
-	private final WeatherClient client;
+	private final WeatherClient weatherClient;
 	private final WeatherProperties properties;
 	private final JsonUtil jsonUtil;
 	
@@ -35,7 +35,7 @@ public class WeatherRequestHandler
 	{
 		String endpoint = properties.getUrl() + apiMethod.getValue() + "?key=" + properties.getKey() + "&q=" + keyword
 				+ "&aqi=no";
-		String response = client.sendCurrentWeatherRequest(HttpMethod.GET, endpoint);
+		String response = weatherClient.sendCurrentWeatherRequest(HttpMethod.GET, endpoint);
 		if (response == null)
 		{
 			return response;

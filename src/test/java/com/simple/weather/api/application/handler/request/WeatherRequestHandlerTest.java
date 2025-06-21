@@ -27,7 +27,7 @@ import com.simple.weather.api.application.util.JsonUtil;
 public class WeatherRequestHandlerTest
 {
 	@Mock
-	private WeatherClient client;
+	private WeatherClient weatherClient;
 	@Mock
 	private WeatherProperties properties;
 	@Mock
@@ -43,7 +43,7 @@ public class WeatherRequestHandlerTest
 		
 		when(properties.getUrl()).thenReturn("url/");
 		when(properties.getKey()).thenReturn("key");
-		when(client.sendCurrentWeatherRequest(eq(HttpMethod.GET), anyString())).thenReturn("response");
+		when(weatherClient.sendCurrentWeatherRequest(eq(HttpMethod.GET), anyString())).thenReturn("response");
 		when(jsonUtil.jsonToObject(anyString(), eq(WeatherData.class))).thenReturn(weatherData);
 		when(weatherData.getWeatherData()).thenReturn(current);
 		when(jsonUtil.ObjectToJson(any())).thenReturn("{json}");
@@ -56,7 +56,7 @@ public class WeatherRequestHandlerTest
 	{
 		when(properties.getUrl()).thenReturn("url/");
 		when(properties.getKey()).thenReturn("key");
-		when(client.sendCurrentWeatherRequest(eq(HttpMethod.GET), anyString())).thenReturn(null);
+		when(weatherClient.sendCurrentWeatherRequest(eq(HttpMethod.GET), anyString())).thenReturn(null);
 		
 		assertNull(requestHandler.sendCurrentWeatherRequest("keyword", WeatherApiMethod.CURRENT));
 		
@@ -68,7 +68,7 @@ public class WeatherRequestHandlerTest
 	{
 		when(properties.getUrl()).thenReturn("url/");
 		when(properties.getKey()).thenReturn("key");
-		when(client.sendCurrentWeatherRequest(eq(HttpMethod.GET), anyString())).thenReturn("response");
+		when(weatherClient.sendCurrentWeatherRequest(eq(HttpMethod.GET), anyString())).thenReturn("response");
 		when(jsonUtil.jsonToObject(anyString(), eq(WeatherData.class))).thenReturn(null);
 		
 		assertNull(requestHandler.sendCurrentWeatherRequest("keyword", WeatherApiMethod.CURRENT));
@@ -81,7 +81,7 @@ public class WeatherRequestHandlerTest
 		
 		when(properties.getUrl()).thenReturn("url/");
 		when(properties.getKey()).thenReturn("key");
-		when(client.sendCurrentWeatherRequest(eq(HttpMethod.GET), anyString())).thenReturn("response");
+		when(weatherClient.sendCurrentWeatherRequest(eq(HttpMethod.GET), anyString())).thenReturn("response");
 		when(jsonUtil.jsonToObject(anyString(), eq(WeatherData.class))).thenReturn(weatherData);
 		when(weatherData.getWeatherData()).thenReturn(null);
 		
