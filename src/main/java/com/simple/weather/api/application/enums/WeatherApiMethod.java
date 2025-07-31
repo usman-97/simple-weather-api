@@ -2,7 +2,7 @@ package com.simple.weather.api.application.enums;
 
 public enum WeatherApiMethod
 {
-	CURRENT("current.json");
+	CURRENT("current.json"), SEARCH("search.json");
 
 	private String value;
 	

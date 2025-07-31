@@ -27,4 +27,11 @@ public class WeatherController extends ControllerBase
 		String weatherData = processor.process(keyword);
 		return buildResponse(weatherData);
 	}
+	
+	@GetMapping(value = "/search/{keyword}", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<?> processMatchCitiesForSearchedKeyword(@PathVariable final String keyword)
+	{
+		String matchedCities = processor.processMatchedCities(keyword);
+		return buildResponse(matchedCities);
+	}
 }

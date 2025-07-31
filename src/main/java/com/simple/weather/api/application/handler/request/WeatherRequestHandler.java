@@ -1,11 +1,16 @@
 package com.simple.weather.api.application.handler.request;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.simple.weather.api.application.client.SearchAutoCompleteClient;
 import com.simple.weather.api.application.client.WeatherClient;
 import com.simple.weather.api.application.enums.HttpMethod;
 import com.simple.weather.api.application.enums.WeatherApiMethod;
 import com.simple.weather.api.application.model.CurrentWeatherData;
+import com.simple.weather.api.application.model.Location;
 import com.simple.weather.api.application.model.WeatherData;
 import com.simple.weather.api.application.properties.WeatherProperties;
 import com.simple.weather.api.application.util.JsonUtil;
@@ -18,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class WeatherRequestHandler
 {
 	private final WeatherClient weatherClient;
+	private final SearchAutoCompleteClient searchAutoCompleteClient;
 	private final WeatherProperties properties;
 	private final JsonUtil jsonUtil;
 	
@@ -44,6 +50,20 @@ public class WeatherRequestHandler
 		WeatherData weatherData = jsonUtil.jsonToObject(response, WeatherData.class);
 		roundTemperatureValues(weatherData);
 		return jsonUtil.ObjectToJson(weatherData);
+	}
+	
+	public String sendSearchAutoCompleteRequest(String keyword, WeatherApiMethod apiMethod)
+	{
+		String endpoint = properties.getUrl() + apiMethod.getValue() + "?key=" + properties.getKey() + "&q=" + keyword
+				+ "&aqi=no";
+		String response = searchAutoCompleteClient.sendSearchLocationsRequest(HttpMethod.GET, endpoint);
+		if (response == null)
+		{
+			return response;
+		}
+		
+		List<Location> matchedCities = jsonUtil.jsonToObject(response, new TypeReference<List<Location>>() {});
+		return jsonUtil.ObjectToJson(matchedCities);
 	}
 	
 	private void roundTemperatureValues(WeatherData weatherData)

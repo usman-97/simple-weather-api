@@ -28,4 +28,12 @@ public class WeatherProcessorTest
 		
 		assertNotNull(processor.process("keyword"));
 	}
+	
+	@Test
+	public void testProcessMatchedCities()
+	{
+		when(requestHandler.sendSearchAutoCompleteRequest(anyString(), any())).thenReturn("{json}");
+		
+		assertNotNull(processor.processMatchedCities("keyword"));
+	}
 }

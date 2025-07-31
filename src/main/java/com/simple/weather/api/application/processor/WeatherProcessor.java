@@ -17,4 +17,9 @@ public class WeatherProcessor
 	{
 		return requestHandler.sendCurrentWeatherRequest(keyword, WeatherApiMethod.CURRENT);
 	}
+	
+	public String processMatchedCities(final String keyword)
+	{
+		return requestHandler.sendSearchAutoCompleteRequest(keyword, WeatherApiMethod.SEARCH);
+	}
 }
