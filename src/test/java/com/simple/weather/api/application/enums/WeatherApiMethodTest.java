@@ -9,7 +9,7 @@ class WeatherApiMethodTest
 	@Test
 	public void testLength()
 	{
-		assertEquals(1, WeatherApiMethod.values().length);
+		assertEquals(2, WeatherApiMethod.values().length);
 	}
 	
 	@Test
