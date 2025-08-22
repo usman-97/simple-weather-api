@@ -31,6 +31,7 @@ public class WeatherController extends ControllerBase
 	@GetMapping(value = "/search/{keyword}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> processMatchCitiesForSearchedKeyword(@PathVariable final String keyword)
 	{
+		log.info("Getting search result for keyword {}.", keyword);
 		String matchedCities = processor.processMatchedCities(keyword);
 		return buildResponse(matchedCities);
 	}

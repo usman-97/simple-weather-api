@@ -28,6 +28,7 @@ public class SearchAutoCompleteClient extends HTTPClientBase
 
 	public String sendSearchLocationsRequest(HttpMethod method, String endpoint)
 	{
+		log.info("Sending request to {}", endpoint);
 		HttpGet request = (HttpGet) httpRequestFactory.createRequest(method, endpoint);
 		return sendRequest(request, responseHandler);
 	}
