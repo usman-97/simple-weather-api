@@ -16,7 +16,8 @@ public class WebConfig {
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/v1/**")
 						.allowedOrigins(
-							"http://localhost:5000"
+							"http://localhost:5000",
+							"https://usman-97.github.io"
 						)
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 						.allowedHeaders("*")
