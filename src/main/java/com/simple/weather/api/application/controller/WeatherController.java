@@ -22,7 +22,7 @@ public class WeatherController extends ControllerBase
 	private final WeatherProcessor processor;
 	
 	@GetMapping(value = "/details", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<?> processWeatherDetails(@RequestParam final String keyword)
+	public ResponseEntity<?> processWeatherDetails(@RequestParam(name = "k") final String keyword)
 	{
 		log.info("Getting weather data with keyword {}", keyword);
 		String weatherData = processor.process(keyword);
