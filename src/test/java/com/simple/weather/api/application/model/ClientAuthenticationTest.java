@@ -9,18 +9,18 @@ import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
 
-class ConditionTest
+class ClientAuthenticationTest
 {
 	@Test
-	void testCondition()
+	void testClientAuthentication()
 	{
 		final Validator validator = ValidatorBuilder.create()
 				.with(new GetterTester())
 				.with(new SetterTester())
 				.build();
 		
-		final PojoClass ConditionPojo = PojoClassFactory.getPojoClass(Condition.class);
+		final PojoClass clientAuthenticationPojo = PojoClassFactory.getPojoClass(ClientAuthentication.class);
 		
-		validator.validate(ConditionPojo);
+		validator.validate(clientAuthenticationPojo);
 	}
 }
