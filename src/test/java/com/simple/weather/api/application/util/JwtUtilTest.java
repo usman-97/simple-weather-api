@@ -47,7 +47,7 @@ class JwtUtilTest
 	
 	@Test
 	@DisplayName("Should generate a token and validate it successfully")
-	void shouldGenerateAndValidateTokenSuccessfully()
+	void testGenerateToken_shouldGenerateAndValidateTokenSuccessfully()
 	{
 		// Given
 		String token = jwtUtil.generateToken(subjectId, secret);
@@ -62,7 +62,7 @@ class JwtUtilTest
 	
 	@Test
 	@DisplayName("Should return null for a token signed with an invalid secret")
-	void shouldReturnNullForInvalidSecret()
+	void testGenerateToken_shouldReturnNullForInvalidSecret()
 	{
 		// Given
 		String token = jwtUtil.generateToken(subjectId, secret);
@@ -76,7 +76,7 @@ class JwtUtilTest
 	
 	@Test
 	@DisplayName("Should return null for an expired token")
-	void shouldReturnNullForExpiredToken()
+	void testValidateToken_shouldReturnNullForExpiredToken()
 	{
 		// Given
 		// Manually create an expired token
@@ -99,7 +99,7 @@ class JwtUtilTest
 	
 	@Test
 	@DisplayName("Should return null for a malformed token string")
-	void shouldReturnNullForMalformedToken()
+	void testValidateToken_shouldReturnNullForMalformedToken()
 	{
 		// Given
 		String malformedToken = "this.is.not.a.valid.jwt";
@@ -113,7 +113,7 @@ class JwtUtilTest
 	
 	@Test
 	@DisplayName("Should return null for a token with an invalid signature")
-	void shouldReturnNullForInvalidSignature()
+	void testValidateToken_shouldReturnNullForInvalidSignature()
 	{
 		// Given
 		// Generate a valid token
@@ -131,7 +131,7 @@ class JwtUtilTest
 	
 	@Test
 	@DisplayName("Should contain correct claims in a generated token")
-	void shouldContainCorrectClaimsInGeneratedToken()
+	void testValidateToken_shouldContainCorrectClaimsInGeneratedToken()
 	{
 		// Given
 		String token = jwtUtil.generateToken(subjectId, secret);

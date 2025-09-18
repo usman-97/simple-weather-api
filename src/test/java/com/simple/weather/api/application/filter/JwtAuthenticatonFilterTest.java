@@ -55,7 +55,7 @@ class JwtAuthenticatonFilterTest
 	
 	@Test
 	@DisplayName("Should pass through for a public endpoint")
-	void shouldPassThroughForPublicEndpoint() throws Exception
+	void testDoFilterInternal_shouldPassThroughForPublicEndpoint() throws Exception
 	{
 		// Given
 		when(request.getServletPath()).thenReturn("/v1/auth/login");
@@ -71,7 +71,7 @@ class JwtAuthenticatonFilterTest
 	
 	@Test
 	@DisplayName("Should return 401 for missing headers")
-	void shouldReturn401ForMissingHeaders() throws Exception
+	void testDoFilterInternal_shouldReturn401ForMissingHeaders() throws Exception
 	{
 		// Given
 		when(request.getServletPath()).thenReturn("/v1/protected/data");
@@ -88,7 +88,7 @@ class JwtAuthenticatonFilterTest
 	
 	@Test
 	@DisplayName("Should return 401 for malformed Authorization header")
-	void shouldReturn401ForMalformedAuthorizationHeader() throws Exception
+	void testDoFilterInternal_shouldReturn401ForMalformedAuthorizationHeader() throws Exception
 	{
 		// Given
 		when(request.getServletPath()).thenReturn("/v1/protected/data");
@@ -105,7 +105,7 @@ class JwtAuthenticatonFilterTest
 	
 	@Test
 	@DisplayName("Should return 401 when ApiUser is not found")
-	void shouldReturn401WhenApiUserIsNotFound() throws Exception
+	void testDoFilterInternal_shouldReturn401WhenApiUserIsNotFound() throws Exception
 	{
 		// Given
 		String clientId = "test-client";
@@ -125,7 +125,7 @@ class JwtAuthenticatonFilterTest
 	
 	@Test
 	@DisplayName("Should return 401 when token validation fails")
-	void shouldReturn401WhenTokenValidationFails() throws Exception
+	void testDoFilterInternal_shouldReturn401WhenTokenValidationFails() throws Exception
 	{
 		// Given
 		String clientId = "test-client";
@@ -150,7 +150,7 @@ class JwtAuthenticatonFilterTest
 	
 	@Test
 	@DisplayName("Should successfully authenticate a valid token and proceed")
-	void shouldSuccessfullyAuthenticateAndProceed() throws Exception
+	void testDoFilterInternal_shouldSuccessfullyAuthenticateAndProceed() throws Exception
 	{
 		// Given
 		String clientId = "test-client";

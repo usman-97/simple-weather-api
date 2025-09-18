@@ -1,4 +1,4 @@
-package com.simple.weather.api.application.model;
+package com.simple.weather.api.application.model.request;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,18 +9,18 @@ import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
 
-class ConditionTest
+class ApiResponseTest
 {
 	@Test
-	void testCondition()
+	void testClientAuthentication()
 	{
 		final Validator validator = ValidatorBuilder.create()
 				.with(new GetterTester())
 				.with(new SetterTester())
 				.build();
 		
-		final PojoClass conditionPojo = PojoClassFactory.getPojoClass(Condition.class);
+		final PojoClass apiResponsePojo = PojoClassFactory.getPojoClass(ApiResponse.class);
 		
-		validator.validate(conditionPojo);
+		validator.validate(apiResponsePojo);
 	}
 }
