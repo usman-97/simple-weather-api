@@ -2,19 +2,22 @@ package com.simple.weather.api.application.controller;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.simple.weather.api.application.model.ClientAuthentication;
-import com.simple.weather.api.application.model.JwtTokenResponse;
 import com.simple.weather.api.application.model.entity.ApiUser;
 import com.simple.weather.api.application.service.ApiUserService;
 import com.simple.weather.api.application.util.JwtUtil;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -28,26 +31,47 @@ public class ClientAuthenticationController extends ControllerBase
 	private final ApiUserService apiUserService;
 	
 	@GetMapping(value = "/token", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getToken(@RequestBody ClientAuthentication clientAuthentication)
+	public ResponseEntity<?> getToken(HttpServletResponse resp, @RequestBody ClientAuthentication clientAuthentication)
 	{
-		JwtTokenResponse tokenResponse = null;
-		String message = "Error generating token";
-		if (clientAuthentication != null)
+		ResponseEntity<?> response = null;
+		String token = generateToken(resp, clientAuthentication);
+		if (!StringUtils.hasText(token))
 		{
-			String clientId = clientAuthentication.getClientId();
-			ApiUser apiUser = apiUserService.fetchApiUser(clientId);
-			if (apiUser != null)
-			{
-				String token = jwtUtil.generateToken(clientId, apiUser.getClientSecret());
-				long expiresIn = TimeUnit.HOURS.toSeconds(EXPIRATION_HOUR);
-				tokenResponse = JwtTokenResponse.builder()
-						.token(token)
-						.expiresIn(expiresIn)
-						.build();
-				message = "Token generated successfully";
-			}
+			response = buildResponse(false, "Error generating token", null, HttpStatus.SC_BAD_REQUEST);
+		}
+		else
+		{
+			response = buildResponse(true, "Successfully generated token", null, HttpStatus.SC_OK);
 		}
 		
-		return buildResponse(tokenResponse != null, message, tokenResponse);
+		return response;
+	}
+	
+	private String generateToken(HttpServletResponse resp, ClientAuthentication clientAuthentication)
+	{
+		String token = null;
+		if (clientAuthentication == null)
+		{
+			return token;
+		}
+		
+		String clientId = clientAuthentication.getClientId();
+		ApiUser apiUser = apiUserService.fetchApiUser(clientId);
+		if (apiUser == null)
+		{
+			return token;
+		}
+		
+		token = jwtUtil.generateToken(clientId, apiUser.getClientSecret());
+		long expiresIn = TimeUnit.HOURS.toSeconds(EXPIRATION_HOUR);
+		
+		Cookie cookie = new Cookie("jwt_auth", token);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(true);
+		cookie.setMaxAge((int) expiresIn);
+		cookie.setPath("/");
+		resp.addCookie(cookie);
+		
+		return token;
 	}
 }

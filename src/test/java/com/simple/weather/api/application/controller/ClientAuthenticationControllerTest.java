@@ -16,6 +16,8 @@ import com.simple.weather.api.application.model.entity.ApiUser;
 import com.simple.weather.api.application.service.ApiUserService;
 import com.simple.weather.api.application.util.JwtUtil;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @ExtendWith(MockitoExtension.class)
 class ClientAuthenticationControllerTest
 {
@@ -23,6 +25,8 @@ class ClientAuthenticationControllerTest
 	private JwtUtil jwtUtil;
 	@Mock
 	private ApiUserService apiUserService;
+	@Mock
+	private HttpServletResponse resp;
 	@InjectMocks
 	private ClientAuthenticationController controller;
 	
@@ -39,7 +43,7 @@ class ClientAuthenticationControllerTest
 		when(apiUser.getClientSecret()).thenReturn("secret");
 		when(jwtUtil.generateToken(anyString(), anyString())).thenReturn("token");
 		
-		ResponseEntity<?> response = controller.getToken(clientAuthentication);
+		ResponseEntity<?> response = controller.getToken(resp, clientAuthentication);
 		
 		assertNotNull(response.getBody());
 	}
@@ -47,7 +51,7 @@ class ClientAuthenticationControllerTest
 	@Test
 	public void testGetToken_NullClientAuthentication()
 	{
-		ResponseEntity<?> response = controller.getToken(null);
+		ResponseEntity<?> response = controller.getToken(resp, null);
 		
 		assertNotNull(response.getBody());
 	}
@@ -58,7 +62,7 @@ class ClientAuthenticationControllerTest
 		when(clientAuthentication.getClientId()).thenReturn("clientId");
 		when(apiUserService.fetchApiUser(anyString())).thenReturn(null);
 		
-		ResponseEntity<?> response = controller.getToken(clientAuthentication);
+		ResponseEntity<?> response = controller.getToken(resp, clientAuthentication);
 		
 		assertNotNull(response.getBody());
 	}

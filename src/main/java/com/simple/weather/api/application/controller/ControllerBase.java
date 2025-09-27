@@ -20,7 +20,7 @@ public abstract class ControllerBase
 		return responseEntity;
 	}
 	
-	public <T> ResponseEntity<?> buildResponse(boolean success, String message, T data)
+	public <T> ResponseEntity<?> buildResponse(boolean success, String message, T data, int status)
 	{
 		ApiResponse<T> response = ApiResponse.<T>builder()
 				.success(success)
@@ -28,6 +28,6 @@ public abstract class ControllerBase
 				.data(data)
 				.build();
 		
-		return  ResponseEntity.ok(response);
+		return  ResponseEntity.status(status).body(response);
 	}
 }
