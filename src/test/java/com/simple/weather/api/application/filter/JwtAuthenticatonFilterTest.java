@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,12 +28,15 @@ import com.simple.weather.api.application.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @ExtendWith(MockitoExtension.class)
 class JwtAuthenticatonFilterTest
 {
+	private static final String VALID_TOKEN_STRING = "valid.token.string";
+	
 	@InjectMocks
 	private JwtAuthenticatonFilter jwtAuthenticatonFilter;
 	@Mock
@@ -40,9 +44,9 @@ class JwtAuthenticatonFilterTest
 	@Mock
 	private ApiUserService apiUserService;
 	@Mock
-	private HttpServletRequest request;
+	private HttpServletRequest req;
 	@Mock
-	private HttpServletResponse response;
+	private HttpServletResponse resp;
 	@Mock
 	private FilterChain filterChain;
 	
@@ -58,14 +62,14 @@ class JwtAuthenticatonFilterTest
 	void testDoFilterInternal_shouldPassThroughForPublicEndpoint() throws Exception
 	{
 		// Given
-		when(request.getServletPath()).thenReturn("/v1/auth/login");
+		when(req.getServletPath()).thenReturn("/v1/auth/login");
 		
 		// When
-		jwtAuthenticatonFilter.doFilterInternal(request, response, filterChain);
+		jwtAuthenticatonFilter.doFilterInternal(req, resp, filterChain);
 		
 		// Then
-		verify(filterChain, times(1)).doFilter(request, response);
-		verify(response, never()).setStatus(anyInt());
+		verify(filterChain, times(1)).doFilter(req, resp);
+		verify(resp, never()).setStatus(anyInt());
 		assertNull(SecurityContextHolder.getContext().getAuthentication());
 	}
 	
@@ -74,15 +78,14 @@ class JwtAuthenticatonFilterTest
 	void testDoFilterInternal_shouldReturn401ForMissingHeaders() throws Exception
 	{
 		// Given
-		when(request.getServletPath()).thenReturn("/v1/protected/data");
-		when(request.getHeader("X-Client-Id")).thenReturn(null);
-		when(request.getHeader("Authorization")).thenReturn(null);
+		when(req.getServletPath()).thenReturn("/v1/protected/data");
+		when(req.getHeader("X-Client-Id")).thenReturn(null);
 		
 		// When
-		jwtAuthenticatonFilter.doFilterInternal(request, response, filterChain);
+		jwtAuthenticatonFilter.doFilterInternal(req, resp, filterChain);
 		
 		// Then
-		verify(response, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		verify(resp, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		verify(filterChain, never()).doFilter(any(), any());
 	}
 	
@@ -91,15 +94,14 @@ class JwtAuthenticatonFilterTest
 	void testDoFilterInternal_shouldReturn401ForMalformedAuthorizationHeader() throws Exception
 	{
 		// Given
-		when(request.getServletPath()).thenReturn("/v1/protected/data");
-		when(request.getHeader("X-Client-Id")).thenReturn("test-client");
-		when(request.getHeader("Authorization")).thenReturn("Invalid token");
+		when(req.getServletPath()).thenReturn("/v1/protected/data");
+		when(req.getHeader("X-Client-Id")).thenReturn("test-client");
 		
 		// When
-		jwtAuthenticatonFilter.doFilterInternal(request, response, filterChain);
+		jwtAuthenticatonFilter.doFilterInternal(req, resp, filterChain);
 		
 		// Then
-		verify(response, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		verify(resp, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		verify(filterChain, never()).doFilter(any(), any());
 	}
 	
@@ -110,16 +112,15 @@ class JwtAuthenticatonFilterTest
 		// Given
 		String clientId = "test-client";
 		
-		when(request.getServletPath()).thenReturn("/v1/protected/data");
-		when(request.getHeader("X-Client-Id")).thenReturn(clientId);
-		when(request.getHeader("Authorization")).thenReturn("Bearer valid.token.string");
+		when(req.getServletPath()).thenReturn("/v1/protected/data");
+		when(req.getHeader("X-Client-Id")).thenReturn(clientId);
 		when(apiUserService.fetchApiUser(clientId)).thenReturn(null);
 		
 		// When
-		jwtAuthenticatonFilter.doFilterInternal(request, response, filterChain);
+		jwtAuthenticatonFilter.doFilterInternal(req, resp, filterChain);
 		
 		// Then
-		verify(response, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		verify(resp, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		verify(filterChain, never()).doFilter(any(), any());
 	}
 	
@@ -134,17 +135,17 @@ class JwtAuthenticatonFilterTest
 		ApiUser apiUser = new ApiUser();
 		apiUser.setClientSecret(clientSecret);
 		
-		when(request.getServletPath()).thenReturn("/v1/protected/data");
-		when(request.getHeader("X-Client-Id")).thenReturn(clientId);
-		when(request.getHeader("Authorization")).thenReturn("Bearer invalid.token.string");
+		when(req.getServletPath()).thenReturn("/v1/protected/data");
+		when(req.getHeader("X-Client-Id")).thenReturn(clientId);
 		when(apiUserService.fetchApiUser(clientId)).thenReturn(apiUser);
 		when(jwtUtil.validateToken(anyString(), eq(clientSecret))).thenReturn(null);
 		
+		
 		// When
-		jwtAuthenticatonFilter.doFilterInternal(request, response, filterChain);
+		jwtAuthenticatonFilter.doFilterInternal(req, resp, filterChain);
 		
 		// Then
-		verify(response, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		verify(resp, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		verify(filterChain, never()).doFilter(any(), any());
 	}
 	
@@ -155,25 +156,30 @@ class JwtAuthenticatonFilterTest
 		// Given
 		String clientId = "test-client";
 		String clientSecret = "test-secret";
-		String token = "valid.token.string";
-		
+		String token = VALID_TOKEN_STRING;
+		Cookie[] cookies = new Cookie[1];
+		Cookie cookie = mock(Cookie.class);
 		ApiUser apiUser = new ApiUser();
+		
 		apiUser.setClientSecret(clientSecret);
+		cookies[0] = cookie;
 		
 		Claims claims = Jwts.claims().subject(clientId).build();
 		
-		when(request.getServletPath()).thenReturn("/v1/protected/data");
-		when(request.getHeader("X-Client-Id")).thenReturn(clientId);
-		when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+		when(req.getServletPath()).thenReturn("/v1/protected/data");
+		when(req.getHeader("X-Client-Id")).thenReturn(clientId);
 		when(apiUserService.fetchApiUser(clientId)).thenReturn(apiUser);
 		when(jwtUtil.validateToken(token, clientSecret)).thenReturn(claims);
+		when(req.getCookies()).thenReturn(cookies);
+		when(cookie.getName()).thenReturn("jwt_auth");
+		when(cookie.getValue()).thenReturn(VALID_TOKEN_STRING);
 		
 		// When
-		jwtAuthenticatonFilter.doFilterInternal(request, response, filterChain);
+		jwtAuthenticatonFilter.doFilterInternal(req, resp, filterChain);
 		
 		// Then
-		verify(filterChain, times(1)).doFilter(request, response);
-		verify(response, never()).setStatus(anyInt());
+		verify(filterChain, times(1)).doFilter(req, resp);
+		verify(resp, never()).setStatus(anyInt());
 		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
 	}
 }

@@ -18,6 +18,7 @@ import com.simple.weather.api.application.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -43,15 +44,9 @@ public class JwtAuthenticatonFilter extends OncePerRequestFilter
 		}
 		
 		String clientId = req.getHeader("X-Client-Id");
-		String authHeader = req.getHeader("Authorization");
+		String token = getToken(req);
 		
-		if (clientId == null && authHeader == null)
-		{
-			log.info("Authentication failure, missing required header.");
-			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
-		else if (!authHeader.startsWith("Bearer "))
+		if (clientId == null && !StringUtils.hasText(token))
 		{
 			log.info("Authentication failure, missing required header.");
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -66,7 +61,6 @@ public class JwtAuthenticatonFilter extends OncePerRequestFilter
 			return;
 		}
 		
-		String token = authHeader.substring(7);
 		Claims claim = jwtUtil.validateToken(token, user.getClientSecret());
 		if (claim == null)
 		{
@@ -86,5 +80,26 @@ public class JwtAuthenticatonFilter extends OncePerRequestFilter
 		}
 		
 		filterChain.doFilter(req, resp);
+	}
+	
+	private String getToken(HttpServletRequest req)
+	{
+		String token = "";
+		Cookie[] cookies = req.getCookies();
+		if (cookies == null)
+		{
+			return token;
+		}
+		
+		for (Cookie cookie : cookies)
+		{
+			if ("jwt_auth".equals(cookie.getName()))
+			{
+				token = cookie.getValue();
+				break;
+			}
+		}
+		
+		return token;
 	}
 }
