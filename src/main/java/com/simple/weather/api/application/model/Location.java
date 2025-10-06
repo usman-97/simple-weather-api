@@ -19,4 +19,10 @@ public class Location
 	private String country;
 	@JsonProperty("localtime")
 	private String localTime;
+	@JsonProperty("id")
+	private String id;
+	@JsonProperty("lat")
+	private String latitude;
+	@JsonProperty("lon")
+	private String longitude;
 }
