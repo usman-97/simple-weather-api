@@ -16,5 +16,4 @@ USER javauser
 COPY --from=builder /project/target/*.war /app/app.war
 WORKDIR /app
 EXPOSE 8080
-ENV SPRING_PROFILES_ACTIVE=prod
-CMD ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "app.war"]
+CMD ["java", "-jar", "app.war"]
