@@ -13,6 +13,7 @@ import com.simple.weather.api.application.model.CurrentWeatherData;
 import com.simple.weather.api.application.model.Location;
 import com.simple.weather.api.application.model.WeatherData;
 import com.simple.weather.api.application.properties.WeatherProperties;
+import com.simple.weather.api.application.util.HttpUtil;
 import com.simple.weather.api.application.util.JsonUtil;
 import com.simple.weather.api.application.util.MathUtil;
 
@@ -39,8 +40,9 @@ public class WeatherRequestHandler
 	 */
 	public String sendCurrentWeatherRequest(String keyword, WeatherApiMethod apiMethod)
 	{
-		String endpoint = properties.getUrl() + apiMethod.getValue() + "?key=" + properties.getKey() + "&q=" + keyword
-				+ "&aqi=no";
+		String encodedKeyword = HttpUtil.encodeString(keyword);
+		String endpoint = properties.getUrl() + apiMethod.getValue() + "?key=" + properties.getKey() + "&q="
+				+ encodedKeyword + "&aqi=no";
 		String response = weatherClient.sendCurrentWeatherRequest(HttpMethod.GET, endpoint);
 		if (response == null)
 		{
@@ -54,8 +56,9 @@ public class WeatherRequestHandler
 	
 	public String sendSearchAutoCompleteRequest(String keyword, WeatherApiMethod apiMethod)
 	{
-		String endpoint = properties.getUrl() + apiMethod.getValue() + "?key=" + properties.getKey() + "&q=" + keyword
-				+ "&aqi=no";
+		String encodedKeyword = HttpUtil.encodeString(keyword);
+		String endpoint = properties.getUrl() + apiMethod.getValue() + "?key=" + properties.getKey() + "&q="
+				+ encodedKeyword + "&aqi=no";
 		String response = searchAutoCompleteClient.sendSearchLocationsRequest(HttpMethod.GET, endpoint);
 		if (response == null)
 		{
