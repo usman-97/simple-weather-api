@@ -52,7 +52,8 @@ public class SecurityConfig
 			CorsConfiguration config = new CorsConfiguration();
 			
 			List<String> allowedOrigins = Arrays.asList(
-				"http://localhost:5000"
+				"http://localhost:5000",
+				"https://usman-97.github.io"
 			);
 
 			if (allowedOrigins.contains(origin)) {
