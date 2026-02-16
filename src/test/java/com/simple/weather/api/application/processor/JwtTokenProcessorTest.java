@@ -2,8 +2,8 @@ package com.simple.weather.api.application.processor;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -14,15 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.simple.weather.api.application.model.ClientAuthentication;
 import com.simple.weather.api.application.model.JwtTokenResponse;
-import com.simple.weather.api.application.model.entity.ApiUser;
-import com.simple.weather.api.application.service.ApiUserService;
 import com.simple.weather.api.application.util.JwtUtil;
 
 @ExtendWith(MockitoExtension.class)
 class JwtTokenProcessorTest
 {
-	@Mock
-	private ApiUserService apiUserService;
 	@Mock
 	private JwtUtil jwtUtil;
 	@InjectMocks
@@ -34,12 +30,8 @@ class JwtTokenProcessorTest
 	@Test
 	public void testProcessToken()
 	{
-		ApiUser apiUser = mock(ApiUser.class);
-		
 		when(clientAuthentication.getClientId()).thenReturn("testClientId");
-		when(apiUserService.fetchApiUser(anyString())).thenReturn(apiUser);
-		when(apiUser.getClientSecret()).thenReturn("testClientSecret");
-		when(jwtUtil.generateToken(anyString(), anyString())).thenReturn("testToken");
+		when(jwtUtil.generateToken(anyString(), any())).thenReturn("testToken");
 		
 		JwtTokenResponse tokenResponse = processor.processToken(clientAuthentication);
 		
@@ -51,14 +43,5 @@ class JwtTokenProcessorTest
 	public void testProcessToken_InvalidClientAuthentication()
 	{
 		assertNull(processor.processToken(null));
-	}
-	
-	@Test
-	public void testProcessToken_ApiUserNotFound()
-	{
-		when(clientAuthentication.getClientId()).thenReturn("testClientId");
-		when(apiUserService.fetchApiUser(anyString())).thenReturn(null);
-		
-		assertNull(processor.processToken(clientAuthentication));
 	}
 }
