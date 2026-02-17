@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.simple.weather.api.application.model.entity.ApiUser;
 import com.simple.weather.api.application.service.ApiUserService;
@@ -105,39 +106,18 @@ class JwtAuthenticatonFilterTest
 	}
 	
 	@Test
-	@DisplayName("Should return 401 when ApiUser is not found")
-	void testDoFilterInternal_shouldReturn401WhenApiUserIsNotFound() throws Exception
-	{
-		// Given
-		String clientId = "test-client";
-		
-		when(req.getServletPath()).thenReturn("/v1/protected/data");
-		when(req.getHeader("X-Client-Id")).thenReturn(clientId);
-		when(apiUserService.fetchApiUser(clientId)).thenReturn(null);
-		when(req.getHeader("Authorization")).thenReturn("Bearer " + VALID_TOKEN_STRING);
-		
-		// When
-		jwtAuthenticatonFilter.doFilterInternal(req, resp, filterChain);
-		
-		// Then
-		verify(resp, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		verify(filterChain, never()).doFilter(any(), any());
-	}
-	
-	@Test
 	@DisplayName("Should return 401 when token validation fails")
 	void testDoFilterInternal_shouldReturn401WhenTokenValidationFails() throws Exception
 	{
 		// Given
 		String clientId = "test-client";
 		String clientSecret = "test-secret";
-		ApiUser apiUser = new ApiUser();
 		
-		apiUser.setClientSecret(clientSecret);
+		ReflectionTestUtils.setField(jwtAuthenticatonFilter, "secret", clientSecret);
+		ReflectionTestUtils.setField(jwtAuthenticatonFilter, "clientId", clientId);
 		
 		when(req.getServletPath()).thenReturn("/v1/protected/data");
 		when(req.getHeader("X-Client-Id")).thenReturn(clientId);
-		when(apiUserService.fetchApiUser(clientId)).thenReturn(apiUser);
 		when(jwtUtil.validateToken(anyString(), eq(clientSecret))).thenReturn(null);
 		when(req.getHeader("Authorization")).thenReturn("Bearer " + VALID_TOKEN_STRING);
 		
@@ -156,16 +136,14 @@ class JwtAuthenticatonFilterTest
 		// Given
 		String clientId = "test-client";
 		String clientSecret = "test-secret";
-		ApiUser apiUser = new ApiUser();
 		
-		apiUser.setClientSecret(clientSecret);
-		
+		ReflectionTestUtils.setField(jwtAuthenticatonFilter, "secret", clientSecret);
+		ReflectionTestUtils.setField(jwtAuthenticatonFilter, "clientId", clientId);
 		Claims claims = Jwts.claims().subject(clientId).build();
 		
 		when(req.getServletPath()).thenReturn("/v1/protected/data");
 		when(req.getHeader("X-Client-Id")).thenReturn(clientId);
 		when(req.getHeader("Authorization")).thenReturn("Bearer " + VALID_TOKEN_STRING);
-		when(apiUserService.fetchApiUser(clientId)).thenReturn(apiUser);
 		when(jwtUtil.validateToken(VALID_TOKEN_STRING, clientSecret)).thenReturn(claims);
 		
 		// When
@@ -205,9 +183,9 @@ class JwtAuthenticatonFilterTest
 		// Given
 		String clientId = "test-client";
 		String clientSecret = "test-secret";
-		ApiUser apiUser = new ApiUser();
 		
-		apiUser.setClientSecret(clientSecret);
+		ReflectionTestUtils.setField(jwtAuthenticatonFilter, "secret", clientSecret);
+		ReflectionTestUtils.setField(jwtAuthenticatonFilter, "clientId", clientId);
 		
 		when(req.getServletPath()).thenReturn("/v1/protected/data");
 		when(req.getHeader("X-Client-Id")).thenReturn(clientId);
