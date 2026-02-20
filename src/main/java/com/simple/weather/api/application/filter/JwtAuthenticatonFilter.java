@@ -3,7 +3,6 @@ package com.simple.weather.api.application.filter;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.simple.weather.api.application.model.entity.ApiUser;
+import com.simple.weather.api.application.service.ApiUserService;
 import com.simple.weather.api.application.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
@@ -28,10 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticatonFilter extends OncePerRequestFilter
 {
 	private final JwtUtil jwtUtil;
-	@Value("${weather.api.clientId}")
-	private final String clientId;
-	@Value("${weather.api.secret}")
-	private final String secret;
+	private final ApiUserService apiUserService;
 	
 	@Override
 	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse resp, FilterChain filterChain)
@@ -53,9 +51,9 @@ public class JwtAuthenticatonFilter extends OncePerRequestFilter
 			return;
 		}
 		
-		if (!authHeader.startsWith("Bearer ") && this.clientId.equals(clientId))
+		if (!authHeader.startsWith("Bearer "))
 		{
-			log.info("Authentication failure, missing required header.");
+			log.info("Authentication failure, invalid header.");
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
@@ -68,15 +66,15 @@ public class JwtAuthenticatonFilter extends OncePerRequestFilter
 			return;
 		}
 		
-//		ApiUser user = apiUserService.fetchApiUser(clientId);
-//		if (user == null)
-//		{
-//			log.info("Authentication failure, invalid client id");
-//			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//			return;
-//		}
+		ApiUser user = apiUserService.fetchApiUser(clientId);
+		if (user == null)
+		{
+			log.info("Authentication failure, invalid client id");
+			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
 		
-		Claims claim = jwtUtil.validateToken(token, secret);
+		Claims claim = jwtUtil.validateToken(token, user.getClientSecret());
 		if (claim == null)
 		{
 			log.info("Authentication failure, failed to verify token");
