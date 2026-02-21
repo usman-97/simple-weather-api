@@ -14,7 +14,7 @@ RUN groupadd -r javauser && \
     mkdir /app && \
     chown -R javauser:javauser /app
 USER javauser
-COPY --from=builder /project/target/*.war /app/app.war
+COPY --from=builder /project/target/*.jar /app/app.jar
 WORKDIR /app
 EXPOSE 8080
-CMD ["java", "-jar", "app.war"]
+CMD ["java", "-jar", "app.jar"]
